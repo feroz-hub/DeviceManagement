@@ -20,3 +20,30 @@ html {
 body {
   margin-bottom: 60px;
 }
+/* site.css */
+
+/* Style for form labels */
+.control-label {
+  font-weight: bold;
+}
+
+/* Style for checkboxes */
+.checkbox {
+  margin-bottom: 10px; /* Adjust as needed */
+}
+
+/* Style for form controls */
+.form-control {
+  width: 100%; /* Make the input fields full width */
+}
+
+/* Optional: Style for buttons */
+.btn-primary {
+  background-color: #007bff; /* Bootstrap primary button color */
+  border-color: #007bff;
+}
+
+.btn-primary:hover {
+  background-color: #0069d9; /* Darker shade on hover */
+  border-color: #0062cc;
+}

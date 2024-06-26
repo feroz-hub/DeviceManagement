@@ -1,0 +1,35 @@
+@model MqttClientRegistrationDto
+@{
+    ViewData["Title"] = "Log Request Form";
+}
+<div class="container" id="layoutSidenav_right">
+     <h1>Mqtt Client Registration Form</h1>
+        <form method="post" asp-action="Register">
+            <div class="form-group">
+                <label asp-for="DeviceName"></label>
+                <input asp-for="DeviceName" class="form-control"/>
+                <span asp-validation-for="DeviceName" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="KeepAlive"></label>
+                <input asp-for="KeepAlive" class="form-control"/>
+                <span asp-validation-for="KeepAlive" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label>Subscribed Topics</label>
+                <select asp-for="SubscribedTopics" class="form-control" multiple="multiple">
+                    <option value="topic1">topic1</option>
+                    <option value="topic2">topic2</option>
+                    <option value="topic3">topic3</option>
+                </select>
+                <span asp-validation-for="SubscribedTopics" class="text-danger"></span>
+            </div>
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

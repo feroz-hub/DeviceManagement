@@ -13,8 +13,8 @@ public class LogRequestModel
 }
 public class LogRequestDto
 {
-    public List<LogType>  LogTypes { get; init; }=default!;
-    public List<LogLevel> LogLevels { get; init; }=default!;
+    public List<LogType>  LogTypes { get; init; }= [];
+    public List<LogLevel> LogLevels { get; init; } = [];
     public bool IsAckRequired { get; init; } 
     public ActionType ActionType { get; init; }
     public ResponseType ResponseType { get; init; }

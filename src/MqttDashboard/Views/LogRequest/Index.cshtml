@@ -1,0 +1,101 @@
+@model LogRequestDto
+
+@{
+    ViewBag.Title = "Create Log Request";
+}
+
+<h2>Create Log Request</h2>
+
+@using (Html.BeginForm())
+{
+    @Html.AntiForgeryToken()
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LogTypes, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @foreach (var logType in Enum.GetValues(typeof(LogType)))
+                            {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="LogTypes" value="@logType.ToString()" /> @logType
+                                </label>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        @Html.LabelFor(model => model.LogLevels, htmlAttributes: new { @class = "control-label" })
+                        <div>
+                            @foreach (var logLevel in Enum.GetValues(typeof(LogLevel)))
+                            {
+                            <div class="checkbox">
+                                <label>
+                                    <input type="checkbox" name="LogLevels" value="@logLevel.ToString()" /> @logLevel
+                                </label>
+                            </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-group row">
+                @Html.LabelFor(model => model.IsAckRequired, htmlAttributes: new { @class = "control-label col-md-2" })
+                <div class="col-md-10">
+                    <div class="form-check">
+                        <label class="form-check-label">
+                            @Html.CheckBoxFor(model => model.IsAckRequired, new { @class = "form-check-input" }) Acknowledge Required
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="form-group">
+            @Html.LabelFor(model => model.ActionType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ActionType,
+                new SelectList(Enum.GetValues(typeof(ActionType))),
+                htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ActionType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ResponseType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ResponseType,
+                new SelectList(Enum.GetValues(typeof(ResponseType))),
+                htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ResponseType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.FromDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.FromDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.FromDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.EndDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.EndDate, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}

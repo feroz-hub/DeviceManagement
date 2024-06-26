@@ -1,21 +1,18 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using MqttDashboard.Infrastructure;
 using MqttDashboard.Models;
 
 namespace MqttDashboard.Controllers;
 
-public class HomeController : Controller
+public class HomeController(ILogger<HomeController> logger,IMqttClientRepository mqttClientRepository) : Controller
 {
-    private readonly ILogger<HomeController> _logger;
+    private readonly ILogger<HomeController> _logger = logger;
 
-    public HomeController(ILogger<HomeController> logger)
+    public async Task<IActionResult> Index()
     {
-        _logger = logger;
-    }
-
-    public IActionResult Index()
-    {
-        return View();
+        var clients=await mqttClientRepository.GetAllClientsAsync();
+        return View(clients);
     }
 
     public IActionResult Privacy()
