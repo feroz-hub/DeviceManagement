@@ -1,5 +1,4 @@
-﻿@model IEnumerable<MqttClientModel>
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -40,7 +39,7 @@
         </main>
     </div>
     <div id="layoutSidenav_right">
-        @await Html.PartialAsync("_rightSection",Model)
+        @await Component.InvokeAsync("RightSection")
     </div>
 </div>
 

@@ -1,7 +1,9 @@
-using MqttDashboard.Domain.Enums;
-using LogLevel = Microsoft.Extensions.Logging.LogLevel;
+using MqttDomain.Enums;
 
-namespace MqttDashboard.Models;
+namespace MqttDomain.Models;
+
+
+
 
 public class LogRequestModel
 {

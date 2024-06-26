@@ -1,9 +1,12 @@
+using Mapster;
 using Microsoft.AspNetCore.Mvc;
 using MqttDashboard.Models;
+using MqttDomain.Models;
+using MqttHub.Services;
 
 namespace MqttDashboard.Controllers;
 
-public class LogRequestController : Controller
+public class LogRequestController (IMqttService mqttService): Controller
 {
     // GET
     public IActionResult Index()
@@ -12,27 +15,27 @@ public class LogRequestController : Controller
     }
 
     [HttpPost]
-    public IActionResult Index(LogRequestDto model)
+    public IActionResult Index(LogRequestModel model)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View(model);
+        // Process the data
+        // Convert the ViewModel to the DTO and save or use it as required
+        var dto = new LogRequestModel
         {
-            // Process the data
-            // Convert the ViewModel to the DTO and save or use it as required
-            var dto = new LogRequestDto
-            {
-                LogTypes = model.LogTypes,
-                LogLevels = model.LogLevels,
-                IsAckRequired = model.IsAckRequired,
-                ActionType = model.ActionType,
-                ResponseType = model.ResponseType,
-                FromDate = model.FromDate,
-                EndDate = model.EndDate
-            };
+            RequestId = Guid.NewGuid(),
+            TargetId = model.TargetId+"_Log",
+            SourceId = "AdminClient",
+            LogRequestDto = model.LogRequestDto,
+            RequestDate = DateTime.Now
+        };
+        mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        // Perform your logic here
 
-            // Perform your logic here
+        return RedirectToAction("Index"); // Or wherever you want to redirect
+    }
 
-            return RedirectToAction("Index"); // Or wherever you want to redirect
-        }
-        return View(model);
+    public IActionResult Privacy()
+    {
+        return View();
     }
 }
