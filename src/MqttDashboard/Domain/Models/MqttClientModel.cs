@@ -1,7 +1,10 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace MqttDashboard.Models;
 
 public class MqttClientModel
 {
+    [Key]
     public Guid ClientId { get; init; }
     public string DeviceName { get; init; } = default!;
     public DateTime Created { get; init; }
