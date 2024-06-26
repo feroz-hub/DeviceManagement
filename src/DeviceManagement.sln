@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MqttDashboard", "MqttDashboard\MqttDashboard.csproj", "{853CF8BE-FBD4-4F40-817E-DC053C5DE404}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MqttHub", "MqttHub\MqttHub.csproj", "{5C15E7AD-5531-4808-8235-BBB80A6D1066}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{853CF8BE-FBD4-4F40-817E-DC053C5DE404}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{853CF8BE-FBD4-4F40-817E-DC053C5DE404}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{853CF8BE-FBD4-4F40-817E-DC053C5DE404}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5C15E7AD-5531-4808-8235-BBB80A6D1066}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5C15E7AD-5531-4808-8235-BBB80A6D1066}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5C15E7AD-5531-4808-8235-BBB80A6D1066}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5C15E7AD-5531-4808-8235-BBB80A6D1066}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

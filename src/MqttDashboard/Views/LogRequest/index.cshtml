@@ -1,0 +1,77 @@
+@model LogRequestDto
+@{
+    ViewData["Title"] = "Log Request Form";
+}
+<div class="container" id="layoutSidenav_right">
+        <h1>Log Request Form</h1>
+        <form method="post" asp-action="Submit">
+            <div class="form-group">
+                <label for="LogTypes">Log Types:</label>
+                <select id="LogTypes" name="LogTypes" multiple class="form-control">
+                    @foreach (var logType in Enum.GetValues(typeof(LogType)))
+                    {
+                        <option value="@logType">@logType</option>
+                    }
+                </select>
+                <span asp-validation-for="LogTypes" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="LogLevels">Log Levels:</label>
+                <select id="LogLevels" name="LogLevels" multiple class="form-control">
+                    @foreach (var logLevel in Enum.GetValues(typeof(LogLevel)))
+                    {
+                        <option value="@logLevel">@logLevel</option>
+                    }
+                </select>
+                <span asp-validation-for="LogLevels" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="IsAckRequired">Is Ack Required:</label>
+                <input type="checkbox" id="IsAckRequired" name="IsAckRequired" class="form-control">
+                <span asp-validation-for="IsAckRequired" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="ActionType">Action Type:</label>
+                <select id="ActionType" name="ActionType" class="form-control">
+                    @foreach (var actionType in Enum.GetValues(typeof(ActionType)))
+                    {
+                        <option value="@actionType">@actionType</option>
+                    }
+                </select>
+                <span asp-validation-for="ActionType" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="ResponseType">Response Type:</label>
+                <select id="ResponseType" name="ResponseType" class="form-control">
+                    @foreach (var responseType in Enum.GetValues(typeof(ResponseType)))
+                    {
+                        <option value="@responseType">@responseType</option>
+                    }
+                </select>
+                <span asp-validation-for="ResponseType" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="FromDate">From Date:</label>
+                <input type="datetime-local" id="FromDate" name="FromDate" class="form-control">
+                <span asp-validation-for="FromDate" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label for="EndDate">End Date:</label>
+                <input type="datetime-local" id="EndDate" name="EndDate" class="form-control">
+                <span asp-validation-for="EndDate" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+    </div>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
