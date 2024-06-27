@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Mvc;
 using MqttDomain.Enums;
 
 namespace MqttDomain.Models;

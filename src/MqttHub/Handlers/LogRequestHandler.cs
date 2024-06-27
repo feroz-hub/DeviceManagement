@@ -1,6 +1,6 @@
 using MediatR;
 using MqttHub.Bus;
-using MqttHub.Command;
+using MqttHub.Commands;
 
 namespace MqttHub.Handlers;
 

@@ -1,6 +1,6 @@
 using MediatR;
 using MqttDomain.Models;
-using MqttHub.Command;
+using MqttHub.Commands;
 
 namespace MqttHub.Services;
 

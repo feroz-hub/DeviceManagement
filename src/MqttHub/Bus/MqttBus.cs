@@ -17,6 +17,10 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
     public readonly ConcurrentBag<string>  _subscribedTopics;
 
     private readonly MqttFactory _mqttFactory=new() ;
+    public Task SendCommand<T>(T command) where T : Commands.Command
+    {
+        return mediator.Send(command);
+    }
     public async Task ManagedMqttPublish<T>(T message, string topic) where T : class
     {
         var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));

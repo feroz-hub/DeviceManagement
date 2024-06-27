@@ -2,7 +2,7 @@ using MediatR;
 using MqttDomain.Models;
 
 
-namespace MqttHub.Command;
+namespace MqttHub.Commands;
 
 public class LogRequestCommand(LogRequestModel logRequestModel):IRequest<bool>
 {
