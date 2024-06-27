@@ -1,4 +1,5 @@
 using MqttDashboard.Models;
+using MqttDomain.Models;
 
 namespace MqttDashboard.Infrastructure;
 

@@ -1,9 +1,11 @@
 using Microsoft.AspNetCore.Mvc;
+using MqttDashboard.Infrastructure;
 using MqttDashboard.Models;
+using MqttDomain.Models;
 
 namespace MqttDashboard.Controllers;
 
-public class MqttClientController : Controller
+public class MqttClientController(IMqttClientRepository mqttClientRepository) : Controller
 {
     // GET
     public IActionResult Index()
@@ -22,5 +24,10 @@ public class MqttClientController : Controller
         }
         return View(model);
     }
-    
+
+    public async Task<IActionResult> Client()
+    {
+        var clients=await mqttClientRepository.GetAllClientsAsync();
+        return View(clients);
+    }
 }

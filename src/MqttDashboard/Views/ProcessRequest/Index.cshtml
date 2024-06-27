@@ -1,1 +1,96 @@
+@using Newtonsoft.Json
 @model ProcessRequestDto
+@{
+    ViewBag.Title = "Create Process Request";
+}
+@using (Html.BeginForm("Index", "ProcessRequest", FormMethod.Post))
+{
+    @Html.AntiForgeryToken()
+    <div class="card-body">
+        @* TargetId Field *@
+        <div class="form-group">
+            @Html.LabelFor(model => model.TargetId, htmlAttributes: new { @class = "control-label" })
+            <div>
+                @Html.TextBoxFor(model => model.TargetId, new { @class = "form-control", id = "TargetId" })
+                @Html.ValidationMessageFor(model => model.TargetId, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+       
+        
+
+        <div class="form-group row">
+            @Html.LabelFor(model => model.IsAckRequired, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                <div class="form-check">
+                    <label class="form-check-label">
+                        @Html.CheckBoxFor(model => model.IsAckRequired, new { @class = "form-check-input" }) Acknowledge Required
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ActionType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ActionType,
+                    new SelectList(Enum.GetValues(typeof(ActionType))),
+                    htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ActionType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ResponseType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.ResponseType,
+                    new SelectList(Enum.GetValues(typeof(ResponseType))),
+                    htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.ResponseType, "", new { @class = "text-danger" })
+            </div>
+        </div>
+        
+        <div class="form-group">
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-check-circle"></i> Send
+            </button>
+        </div>
+    </div>
+}
+<div class="json-data">
+    <h3>Response</h3>
+    <pre id="json-preview"></pre>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        $('input[name="selectedClients"]').change(function() {
+            if ($(this).is(':checked')) {
+                var deviceName = $(this).val(); // Get the device name
+                $('#TargetId').val(deviceName); // Update the TargetId input field
+            }
+        });
+        $('form').submit(function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Serialize the form data
+            var formData = $(this).serialize();
+
+            // Submit the form using AJAX
+            $.ajax({
+                type: 'POST',
+                url: '/LogRequest/Index', // Adjust the URL if needed
+                data: formData,
+                success: function(response) {
+                    // Handle success if needed
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if any
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+     });
+</script>

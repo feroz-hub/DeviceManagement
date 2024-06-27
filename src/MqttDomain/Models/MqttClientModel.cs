@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MqttDashboard.Models;
+namespace MqttDomain.Models;
 
 public class MqttClientModel
 {

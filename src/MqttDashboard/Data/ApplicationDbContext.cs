@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MqttDashboard.Models;
+using MqttDomain.Models;
 
 namespace MqttDashboard.Data;
 
