@@ -25,10 +25,10 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
     {
         var data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(message));
 
-        if (ConnectManagedMqttClient() && managedMqttClient != null)
+        if (await ConnectMqttClientAsync() || mqttClient!= null && mqttClient.IsConnected )
         {
 
-            await managedMqttClient.EnqueueAsync(new MqttApplicationMessage()
+            await mqttClient.PublishAsync(new MqttApplicationMessage()
             {
                 Topic = topic,
                 PayloadSegment = data,
@@ -40,35 +40,32 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
 
     public async Task SubscribeToTopic(string topic)
     {
-        if (ConnectManagedMqttClient() && managedMqttClient != null)
+        if (await ConnectMqttClientAsync() || mqttClient!=null && mqttClient.IsConnected)
         {
-            managedMqttClient.ApplicationMessageReceivedAsync += async e =>
+            mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 var message=e.ApplicationMessage.ConvertPayloadToString();
                 _messages.Add(message);
                 await Task.CompletedTask;
             };
-            await managedMqttClient.SubscribeAsync(topic);
+            await mqttClient.SubscribeAsync(topic);
+            
         }
     }
-
     public IEnumerable<string> GetMessages()
     {
         return _messages;
     }
-
     public IEnumerable<string> GetSubscribedTopics()
     {
         return _subscribedTopics.Distinct();
     }
-
-
-    private bool ConnectManagedMqttClient()
+    private async Task<bool> ConnectManagedMqttClientAsync()
     {
         var result = false;
         try
         {
-            if (managedMqttClient== null || !managedMqttClient.IsConnected)
+            if (!managedMqttClient.IsConnected)
             {
                 var managedClientOption = new MqttClientOptionsBuilder()
                     .WithClientId("AdminManagedMqttClient")
@@ -84,7 +81,7 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
                     //.WithPendingMessagesOverflowStrategy(MqttPendingMessagesOverflowStrategy.DropOldestQueuedMessage)
                     .WithAutoReconnectDelay(TimeSpan.FromSeconds(1))
                     .Build();
-                managedMqttClient.StartAsync(managedMqttClientOption);
+                await managedMqttClient.StartAsync(managedMqttClientOption);
                 result = true;
             }
         }
@@ -94,14 +91,38 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
         }
         return result;
     }
-    
+    private async Task<bool> ConnectMqttClientAsync()
+    {
+        var  result=false;
+        try
+        {
+            if (!mqttClient.IsConnected)
+            {
+                var options = new MqttClientOptionsBuilder()
+                    .WithTcpServer("localhost", 1883)
+                    .WithClientId("AdminSubscribeClient")
+                    .WithWillQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
+                    .WithKeepAlivePeriod(TimeSpan.FromMinutes(60))
+                    .WithCleanSession()
+                    .Build();
+                mqttClient = _mqttFactory.CreateMqttClient();
+                await mqttClient.ConnectAsync(options);
+                result = true;
+            }
+        }
+        catch (Exception e)
+        {
+            result=false;
+        }
+        return result;
+    }
+   
     private async Task SubscribeToTopics(List<string> topics)
     {
         foreach (var topic in topics)
         {
              await managedMqttClient.SubscribeAsync(topic);
             _subscribedTopics.Add(topic);
-            // Handle subscription result if needed
         }
     }
 
