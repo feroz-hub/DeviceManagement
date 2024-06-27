@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Text;
 using MediatR;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,10 @@ namespace MqttHub.Bus;
 
 public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactory scopeFactory,IManagedMqttClient managedMqttClient):IMqttBus
 {
+    
+    private readonly ConcurrentBag<string> _messages;
+    public readonly ConcurrentBag<string>  _subscribedTopics;
+
     private readonly MqttFactory _mqttFactory=new() ;
     public async Task ManagedMqttPublish<T>(T message, string topic) where T : class
     {
@@ -28,7 +33,32 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
             });
         }
     }
-    
+
+    public async Task SubscribeToTopic(string topic)
+    {
+        if (ConnectManagedMqttClient() && managedMqttClient != null)
+        {
+            managedMqttClient.ApplicationMessageReceivedAsync += async e =>
+            {
+                var message=e.ApplicationMessage.ConvertPayloadToString();
+                _messages.Add(message);
+                await Task.CompletedTask;
+            };
+            await managedMqttClient.SubscribeAsync(topic);
+        }
+    }
+
+    public IEnumerable<string> GetMessages()
+    {
+        return _messages;
+    }
+
+    public IEnumerable<string> GetSubscribedTopics()
+    {
+        return _subscribedTopics.Distinct();
+    }
+
+
     private bool ConnectManagedMqttClient()
     {
         var result = false;
@@ -59,6 +89,16 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
             result = false;
         }
         return result;
+    }
+    
+    private async Task SubscribeToTopics(List<string> topics)
+    {
+        foreach (var topic in topics)
+        {
+             await managedMqttClient.SubscribeAsync(topic);
+            _subscribedTopics.Add(topic);
+            // Handle subscription result if needed
+        }
     }
 
 }

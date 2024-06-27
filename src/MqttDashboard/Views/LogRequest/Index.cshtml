@@ -1,20 +1,21 @@
-@model LogRequestModel
+@using Newtonsoft.Json
+@model LogRequestAndResponseModel
 @{
     ViewBag.Title = "Create Log Request";
 }
 <h2>Create Log Request</h2>
 
-@using (Html.BeginForm())
+@using (Html.BeginForm("Index", "LogRequest", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
 
     <div class="card-body">
         @* TargetId Field *@
         <div class="form-group">
-            @Html.LabelFor(model => model.TargetId, htmlAttributes: new { @class = "control-label" })
+            @Html.LabelFor(model => model.LogRequestModel.TargetId, htmlAttributes: new { @class = "control-label" })
             <div>
-                @Html.TextBoxFor(model => model.TargetId, new { @class = "form-control", id = "TargetId" })
-                @Html.ValidationMessageFor(model => model.TargetId, "", new { @class = "text-danger" })
+                @Html.TextBoxFor(model => model.LogRequestModel.TargetId, new { @class = "form-control", id = "TargetId" })
+                @Html.ValidationMessageFor(model => model.LogRequestModel.TargetId, "", new { @class = "text-danger" })
             </div>
         </div>
 
@@ -22,13 +23,13 @@
         <div class="row">
             <div class="col-md-6">
                 <div class="form-group">
-                    @Html.LabelFor(model => model.LogRequestDto.LogTypes, htmlAttributes: new { @class = "control-label" })
+                    @Html.LabelFor(model => model.LogRequestModel.LogTypes, htmlAttributes: new { @class = "control-label" })
                     <div>
                         @foreach (var logType in Enum.GetValues(typeof(LogType)))
                         {
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" name="LogRequestDto.LogTypes" value="@logType.ToString()" /> @logType
+                                    <input type="checkbox" name="LogRequestModel.LogTypes" value="@logType.ToString()" /> @logType
                                 </label>
                             </div>
                         }
@@ -37,13 +38,13 @@
             </div>
             <div class="col-md-6">
                 <div class="form-group">
-                    @Html.LabelFor(model => model.LogRequestDto.LogLevels, htmlAttributes: new { @class = "control-label" })
+                    @Html.LabelFor(model => model.LogRequestModel.LogLevels, htmlAttributes: new { @class = "control-label" })
                     <div>
                         @foreach (var logLevel in Enum.GetValues(typeof(LogLevel)))
                         {
                             <div class="checkbox">
                                 <label>
-                                    <input type="checkbox" name="LogRequestDto.LogLevels" value="@logLevel.ToString()" /> @logLevel
+                                    <input type="checkbox" name="LogRequestModel.LogLevels" value="@logLevel.ToString()" /> @logLevel
                                 </label>
                             </div>
                         }
@@ -53,61 +54,61 @@
         </div>
 
         <div class="form-group row">
-            @Html.LabelFor(model => model.LogRequestDto.IsAckRequired, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.LogRequestModel.IsAckRequired, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
                 <div class="form-check">
                     <label class="form-check-label">
-                        @Html.CheckBoxFor(model => model.LogRequestDto.IsAckRequired, new { @class = "form-check-input" }) Acknowledge Required
+                        @Html.CheckBoxFor(model => model.LogRequestModel.IsAckRequired, new { @class = "form-check-input" }) Acknowledge Required
                     </label>
                 </div>
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.LogRequestDto.ActionType, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.LogRequestModel.ActionType, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.LogRequestDto.ActionType,
+                @Html.DropDownListFor(model => model.LogRequestModel.ActionType,
                     new SelectList(Enum.GetValues(typeof(ActionType))),
                     htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.LogRequestDto.ActionType, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.LogRequestModel.ActionType, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.LogRequestDto.ResponseType, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.LogRequestModel.ResponseType, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownListFor(model => model.LogRequestDto.ResponseType,
+                @Html.DropDownListFor(model => model.LogRequestModel.ResponseType,
                     new SelectList(Enum.GetValues(typeof(ResponseType))),
                     htmlAttributes: new { @class = "form-control" })
-                @Html.ValidationMessageFor(model => model.LogRequestDto.ResponseType, "", new { @class = "text-danger" })
+                @Html.ValidationMessageFor(model => model.LogRequestModel.ResponseType, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.LogRequestDto.FromDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.LogRequestModel.FromDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.LogRequestDto.FromDate, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LogRequestDto.FromDate, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.LogRequestModel.FromDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LogRequestModel.FromDate, "", new { @class = "text-danger" })
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.LogRequestDto.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.LogRequestModel.EndDate, htmlAttributes: new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.LogRequestDto.EndDate, new { htmlAttributes = new { @class = "form-control" } })
-                @Html.ValidationMessageFor(model => model.LogRequestDto.EndDate, "", new { @class = "text-danger" })
+                @Html.EditorFor(model => model.LogRequestModel.EndDate, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.LogRequestModel.EndDate, "", new { @class = "text-danger" })
             </div>
         </div>
-
         <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Create" class="btn btn-default" />
-            </div>
+            <button type="submit" class="btn btn-outline-primary w-100">
+                <i class="bi bi-check-circle"></i> Send
+            </button>
         </div>
     </div>
 }
 <div class="json-data">
-    <h3>JSON Data Preview</h3>
+    <h3>Response</h3>
+    <pre id="json-preview"></pre>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
@@ -118,5 +119,30 @@
                 $('#TargetId').val(deviceName); // Update the TargetId input field
             }
         });
+        $('form').submit(function(event) {
+            // Prevent the default form submission
+            event.preventDefault();
+
+            // Serialize the form data
+            var formData = $(this).serialize();
+
+            // Submit the form using AJAX
+            $.ajax({
+                type: 'POST',
+                url: '/LogRequest/Index', // Adjust the URL if needed
+                data: formData,
+                success: function(response) {
+                    // Handle success if needed
+                    console.log(response);
+                },
+                error: function(xhr, status, error) {
+                    // Handle errors if any
+                    console.error(xhr.responseText);
+                }
+            });
+        });
+    // Display JSON data in the json-preview div
+    var logViewData = @Html.Raw(JsonConvert.SerializeObject(Model.LogResponseModel));
+    $('#json-preview').text(JSON.stringify(logViewData, null, 2));
     });
 </script>

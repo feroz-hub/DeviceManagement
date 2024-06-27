@@ -8,7 +8,7 @@ public class LogRequestHandler(IMqttBus mqttBus):IRequestHandler<LogRequestComma
 {
     public async Task<bool> Handle(LogRequestCommand request, CancellationToken cancellationToken)
     {
-        await mqttBus.ManagedMqttPublish(request.LogRequestModel, request.LogRequestModel.TargetId);
+        await mqttBus.ManagedMqttPublish(request.LogRequestModel, request.LogRequestModel.LogRequestDto.TargetId);
         return await Task.FromResult(true);
     }
 }

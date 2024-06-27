@@ -19,12 +19,16 @@ public static class MqttServiceExtension
             return new MqttBus(sp.GetService<IMediator>(), sp.GetService<IMqttClient>(), scopefactory,
                 sp.GetService<IManagedMqttClient>());
         });
+        services.AddSingleton<IManagedMqttClient>(opt =>
+        {
+            var factory = new MqttFactory();
+            return factory.CreateManagedMqttClient();
+        });
         services.AddSingleton<IMqttClient>(opt =>
         {
             var factory = new MqttFactory();
             return factory.CreateMqttClient();
         });
-        
         services.AddMediatR(config =>
         {
             config.RegisterServicesFromAssembly(assembly);
