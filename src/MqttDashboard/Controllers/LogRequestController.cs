@@ -7,21 +7,31 @@ using MqttHub.Services;
 
 namespace MqttDashboard.Controllers;
 
-public class LogRequestController (IMqttService mqttService,IMqttBus mqttBus): Controller
+public class LogRequestController : Controller
 {
-    
+    private readonly IMqttService _mqttService;
+    private readonly IMqttBus _mqttBus;
+    private readonly LogResponseModel _viewModel = new ();
+
+    public LogRequestController(IMqttService mqttService, IMqttBus mqttBus)
+    {
+        _mqttService=mqttService;
+        _mqttBus=mqttBus;
+        _mqttBus.MessageReceived += async (topic, message) =>
+        {
+            await Task.Run(() =>
+            {
+                _viewModel.Messages.Add($"Topic: {topic}, Message: {message}");
+            });
+        };
+    }
     // GET
     public IActionResult Index()
     {
-        var messages = mqttBus.GetMessages();
-        var logResponseModel = new LogResponseModel
-        {
-            Messages = messages != null ? messages.ToList() : []
-        };
         var model = new LogRequestAndResponseModel()
         {
             LogRequestModel = new LogRequestDto(),
-            LogResponseModel = logResponseModel
+            LogResponseModel = _viewModel
         };
         return View(model);
     }
@@ -40,23 +50,16 @@ public class LogRequestController (IMqttService mqttService,IMqttBus mqttBus): C
                 RequestDate = DateTime.Now
             };
             await Subscribe("Test");
-            mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+            _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
             // Perform your logic here
-
-           
             return RedirectToAction("Index"); // Or wherever you want to redirect
         }
         
-        var messages = mqttBus.GetMessages();
-        var logResponseModel = new LogResponseModel()
-        {
-            Messages = messages != null ? messages.ToList() : []
-
-        };
+        
         var model = new LogRequestAndResponseModel()
         {
             LogRequestModel = new LogRequestDto(),
-            LogResponseModel = logResponseModel
+            LogResponseModel = _viewModel
         };
         // Process the data
         // Convert the ViewModel to the DTO and save or use it as required
@@ -69,7 +72,7 @@ public class LogRequestController (IMqttService mqttService,IMqttBus mqttBus): C
         if (string.IsNullOrEmpty(topic)) return RedirectToAction("Index");
         try
         {
-            await mqttBus.SubscribeToTopic(topic);
+            await _mqttBus.SubscribeToTopic(topic);
         }
         catch (Exception e)
         {
@@ -82,8 +85,7 @@ public class LogRequestController (IMqttService mqttService,IMqttBus mqttBus): C
     [HttpGet]
     public IActionResult GetMessages()
     {
-        var messages = mqttBus.GetMessages();
-        return Json(messages);
+        return Json(_viewModel.Messages);
     }
     public IActionResult Privacy()
     {

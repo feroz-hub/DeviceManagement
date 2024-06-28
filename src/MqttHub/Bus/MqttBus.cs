@@ -12,7 +12,6 @@ namespace MqttHub.Bus;
 
 public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactory scopeFactory,IManagedMqttClient managedMqttClient):IMqttBus
 {
-    
     private readonly ConcurrentBag<string> _messages;
     public readonly ConcurrentBag<string>  _subscribedTopics;
 
@@ -45,7 +44,8 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
             mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 var message=e.ApplicationMessage.ConvertPayloadToString();
-                _messages.Add(message);
+                if (MessageReceived != null)
+                    await MessageReceived(message, e.ApplicationMessage.Topic);
                 await Task.CompletedTask;
             };
             await mqttClient.SubscribeAsync(topic);
@@ -60,6 +60,9 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
     {
         return _subscribedTopics.Distinct();
     }
+
+    public event Func<string, string, Task>? MessageReceived;
+
     private async Task<bool> ConnectManagedMqttClientAsync()
     {
         var result = false;

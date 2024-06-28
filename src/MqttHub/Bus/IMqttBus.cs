@@ -9,4 +9,5 @@ public interface IMqttBus
     Task SubscribeToTopic(string topic);
     IEnumerable<string> GetMessages();
     IEnumerable<string> GetSubscribedTopics();
+    event Func<string, string, Task> MessageReceived;
 }
