@@ -17,7 +17,7 @@ public class LogRequestController : Controller
     {
         _mqttService=mqttService;
         _mqttBus=mqttBus;
-        _mqttBus.MessageReceived += async (topic, message) =>
+        _mqttBus.MessageReceived += async (message, topic) =>
         {
             await Task.Run(() =>
             {
@@ -49,7 +49,7 @@ public class LogRequestController : Controller
                 LogRequestDto = logRequestModel,
                 RequestDate = DateTime.Now
             };
-            await Subscribe("Test");
+            await Subscribe(logRequestModel.TargetId);
             _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
             // Perform your logic here
             return RedirectToAction("Index"); // Or wherever you want to redirect
