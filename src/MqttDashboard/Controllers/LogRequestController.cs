@@ -1,34 +1,22 @@
-using Mapster;
+
 using Microsoft.AspNetCore.Mvc;
-using MqttDashboard.Models;
 using MqttDomain.Models;
 using MqttHub.Bus;
 using MqttHub.Services;
 
 namespace MqttDashboard.Controllers;
 
-public class LogRequestController : Controller
+public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : Controller
 {
-    private readonly IMqttService _mqttService;
-    private readonly IMqttBus _mqttBus;
-    private LogResponseModel _viewModel = new ();
+    private readonly LogResponseModel _viewModel = new ();
 
-    public LogRequestController(IMqttService mqttService, IMqttBus mqttBus)
-    {
-        _mqttService=mqttService;
-        _mqttBus=mqttBus;
-        _mqttBus.MessageReceived += async (message, topic) =>
-        {
-            await OnMessageReceivedAsync(message, topic);
-        };
-    }
     // GET
     public IActionResult Index()
     {
         var model = new LogRequestAndResponseModel()
         {
             LogRequestModel = new LogRequestDto(),
-            LogResponseModel = _viewModel
+            //LogResponseModel = _viewModel
         };
         return View(model);
     }
@@ -56,7 +44,7 @@ public class LogRequestController : Controller
                 RequestDate = DateTime.Now
             };
             await Subscribe(logRequestModel.TargetId);
-            _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+            mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
             // Perform your logic here
             return RedirectToAction("Index"); // Or wherever you want to redirect
         }
@@ -65,7 +53,7 @@ public class LogRequestController : Controller
         var model = new LogRequestAndResponseModel()
         {
             LogRequestModel = new LogRequestDto(),
-            LogResponseModel = _viewModel
+            //LogResponseModel = _viewModel
         };
         // Process the data
         // Convert the ViewModel to the DTO and save or use it as required
@@ -78,7 +66,7 @@ public class LogRequestController : Controller
         if (string.IsNullOrEmpty(topic)) return RedirectToAction("Index");
         try
         {
-            await _mqttBus.SubscribeToTopic(topic);
+            await mqttBus.SubscribeToTopic(topic);
         }
         catch (Exception e)
         {
@@ -88,11 +76,20 @@ public class LogRequestController : Controller
         return RedirectToAction("Index");
     }
 
-    [HttpGet]
-    public IActionResult GetMessages()
-    {
-        return Json(_viewModel.Messages);
-    }
+    // [HttpGet]
+    // public IActionResult GetMessages()
+    // {
+    //     mqttBus.MessageReceived += async (message, topic) =>
+    //     {
+    //         await OnMessageReceivedAsync(message, topic);
+    //     };
+    //     var model = new LogRequestAndResponseModel()
+    //     {
+    //         LogRequestModel = new LogRequestDto(),
+    //         //LogResponseModel = _viewModel
+    //     };
+    //     return PartialView("_MqttResponsePartial", model);
+    // }
     public IActionResult Privacy()
     {
         return View();

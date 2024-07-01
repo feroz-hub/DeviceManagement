@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MqttDashboard.Data;
 using MqttDashboard.Infrastructure;
 using MqttDashboard.Models;
+using MqttDashboard.Services;
 using MqttHub.Extension;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,7 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
+builder.Services.AddScoped<IMessageReceiverService, MessageReceiverService>();
 builder.Services.AddScoped<IMqttClientRepository, MqttClientRepository>();
 builder.Services.AddMqttService(typeof(Program).Assembly);
 var app = builder.Build();

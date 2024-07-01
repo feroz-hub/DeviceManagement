@@ -4,10 +4,10 @@ namespace MqttDomain.Models;
 
 public class LogRequestModel
 {
-    public Guid RequestId { get; set; }
+    public Guid RequestId { get; init; }=Guid.NewGuid();
     public string SourceId { get; init; } = default!;
   
-    public DateTime RequestDate { get; set; }
+    public DateTime RequestDate { get; init; }=DateTime.Now;
     public LogRequestDto LogRequestDto { get; init; } = default!;
 }
 public class LogRequestDto
@@ -24,11 +24,9 @@ public class LogRequestDto
 public class LogResponseModel
 {
     public List<string> Messages { get; set; } = [];
-
-   
 }
 public class LogRequestAndResponseModel
 {
-    public LogRequestDto LogRequestModel { get; set; }
-    public  LogResponseModel  LogResponseModel{ get; set; }
+    public LogRequestDto LogRequestModel { get; set; } = new();
+    //public LogResponseModel LogResponseModel { get; set; } = new();
 }

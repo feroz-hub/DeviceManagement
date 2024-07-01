@@ -27,3 +27,47 @@ window.addEventListener('DOMContentLoaded', event => {
         });
     }
 });
+
+// $('form').submit(function(event) {
+//     // Prevent the default form submission
+//     event.preventDefault();
+//
+//     // Serialize the form data
+//     var formData = $(this).serialize();
+//
+//     // Submit the form using AJAX
+//     $.ajax({
+//         type: 'POST',
+//         url: '/LogRequest/Index', // Adjust the URL if needed
+//         data: formData,
+//         success: function(response) {
+//             // Handle success if needed
+//             console.log(response);
+//         },
+//         error: function(xhr, status, error) {
+//             // Handle errors if any
+//             console.error(xhr.responseText);
+//         }
+//     });
+// });
+
+
+// Fetch messages every 1 seconds
+// setInterval(fetchMessages, 1000);
+//
+// // Fetch messages immediately on load
+// fetchMessages();
+//
+// function fetchMessages() {
+//     $.ajax({
+//         url: '@Url.Action("GetMessages")',
+//         method: 'GET',
+//         success: function(data) {
+//             // Update the json-preview div with the new messages
+//             $('#json-preview').text(JSON.stringify(data, null, 2));
+//         },
+//         error: function(xhr, status, error) {
+//             console.error(xhr.responseText);
+//         }
+//     });
+// }
