@@ -23,7 +23,9 @@ public class LogRequestDto
 }
 public class LogResponseModel
 {
-    public List<string> Messages { get; set; }
+    public List<string> Messages { get; set; } = [];
+
+   
 }
 public class LogRequestAndResponseModel
 {

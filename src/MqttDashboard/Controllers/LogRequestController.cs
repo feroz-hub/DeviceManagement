@@ -11,7 +11,7 @@ public class LogRequestController : Controller
 {
     private readonly IMqttService _mqttService;
     private readonly IMqttBus _mqttBus;
-    private readonly LogResponseModel _viewModel = new ();
+    private LogResponseModel _viewModel = new ();
 
     public LogRequestController(IMqttService mqttService, IMqttBus mqttBus)
     {
@@ -19,10 +19,7 @@ public class LogRequestController : Controller
         _mqttBus=mqttBus;
         _mqttBus.MessageReceived += async (message, topic) =>
         {
-            await Task.Run(() =>
-            {
-                _viewModel.Messages.Add($"Topic: {topic}, Message: {message}");
-            });
+            await OnMessageReceivedAsync(message, topic);
         };
     }
     // GET
@@ -36,6 +33,15 @@ public class LogRequestController : Controller
         return View(model);
     }
 
+    private Task OnMessageReceivedAsync(string message, string topic)
+    {
+        return Task.Run(() =>
+        {
+            if((_viewModel.Messages!=null)) 
+                _viewModel.Messages.Add($"Topic: {topic}, Message: {message}");
+        });
+    }
+    
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(LogRequestDto logRequestModel)
