@@ -49,6 +49,13 @@
                     </div>
                 </div>
             </div>
+
+    <!-- Input field and Subscribe button -->
+    <div class="form-group">
+        <label for="topicInput">Enter Topic:</label>
+        <input type="text" id="topicInput" class="form-control" />
+    </div>
+    <button id="subscribeButton" class="btn btn-primary">Subscribe</button>
             @* <div class="options"> *@
             @*     <a asp-controller="MqttClient" asp-action="Register" class="option-button"> *@
             @*         <span class="material-icons-sharp"><i class="bi bi-clipboard-data"></i></span>Log *@
@@ -70,3 +77,39 @@
             @*     </a> *@
             @* </div> *@
 </nav>
+<script>
+
+    $(document).ready(function() {
+    
+        $('#subscribeButton').click(function () {
+            var topic = $('#topicInput').val(); // Get the topic from input field
+            if (!topic) {
+                alert("Please enter a topic");
+                return;
+            }
+
+            $.ajax({
+                url: '@Url.Action("Subscribe", "LogRequest")',
+                type: 'POST',
+                data: { topic: topic },
+                success: function (data) {
+                    // Handle success as needed, e.g., show a success message
+                    console.log("Subscription successful");
+                },
+                error: function () {
+                    // Handle errors, e.g., show an error message
+                    console.error("Failed to subscribe to topic");
+                }
+            });
+        });
+        $(document).ajaxComplete(function (event, xhr, settings) {
+            if (xhr.getResponseHeader("X-Trigger-Partial-View")) {
+                fetchMessages();
+            }
+        });
+       
+      
+    });
+
+
+</script>
