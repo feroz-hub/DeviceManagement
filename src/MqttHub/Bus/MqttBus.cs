@@ -44,8 +44,8 @@ public class MqttBus(ISender mediator,IMqttClient mqttClient,IServiceScopeFactor
             mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 var message=e.ApplicationMessage.ConvertPayloadToString();
-                if (message != null)
-                    await MessageReceived.Invoke(message, e.ApplicationMessage.Topic);
+                if (MessageReceived != null)
+                    await MessageReceived(message, e.ApplicationMessage.Topic);
                 await Task.CompletedTask;
             };
             await mqttClient.SubscribeAsync(topic);

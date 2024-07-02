@@ -4,21 +4,36 @@ using MqttHub.Bus;
 
 namespace MqttDashboard.Controllers;
 
-public class MqttResponseController(IMqttBus mqttBus,IMessageReceiverService messageReceiverService) : Controller
+public class MqttResponseController : Controller
 {
-    // GET
-    public IActionResult Index()
+    private readonly IMqttBus _mqttBus;
+    private static List<string> _messages = [];
+
+    public MqttResponseController(IMqttBus mqttBus)
     {
-        return View();
+        _mqttBus = mqttBus;
+        _mqttBus.MessageReceived += OnMessageReceived;
+    }
+    // GET
+    public async Task<IActionResult> Index()
+    {
+        //await _mqttBus.SubscribeToTopic("Test");
+
+        return View(_messages);
     }
     
+    private async Task OnMessageReceived(string message, string topic)
+    {
+        _messages.Add($"{topic}: {message}");
+        await Task.CompletedTask;
+    }
     [HttpPost]
     public async Task<IActionResult> Subscribe(string topic)
     {
         if (string.IsNullOrEmpty(topic)) return RedirectToAction("Index");
         try
         {
-            await mqttBus.SubscribeToTopic(topic);
+            await _mqttBus.SubscribeToTopic(topic);
         }
         catch (Exception e)
         {
@@ -28,9 +43,9 @@ public class MqttResponseController(IMqttBus mqttBus,IMessageReceiverService mes
         return RedirectToAction("Index");
     }
     
-    public IActionResult GetReceivedMessages()
-    {
-        var messages = messageReceiverService.GetReceivedMessages();
-        return PartialView("_MqttResponsePartial", messages);
-    }
+    // public IActionResult GetReceivedMessages()
+    // {
+    //     var messages = messageReceiverService.GetReceivedMessages();
+    //     return PartialView("_MqttResponsePartial", messages);
+    // }
 }
