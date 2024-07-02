@@ -13,12 +13,8 @@ public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : 
     // GET
     public IActionResult Index()
     {
-        var model = new LogRequestAndResponseModel()
-        {
-            LogRequestModel = new LogRequestDto(),
-            //LogResponseModel = _viewModel
-        };
-        return View(model);
+        _viewModel.Messages = [..mqttBus.GetMessages()];
+        return View(_viewModel);
     }
 
     private Task OnMessageReceivedAsync(string message, string topic)
@@ -30,34 +26,51 @@ public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : 
         });
     }
     
+    // [HttpPost]
+    // [ValidateAntiForgeryToken]
+    // public async Task<IActionResult> Index(LogRequestDto logRequestModel)
+    // {
+    //     if (ModelState.IsValid)
+    //     {
+    //         var dto = new LogRequestModel
+    //         {
+    //             RequestId = Guid.NewGuid(),
+    //             SourceId = "AdminClient",
+    //             LogRequestDto = logRequestModel,
+    //             RequestDate = DateTime.Now
+    //         };
+    //         await Subscribe(logRequestModel.TargetId);
+    //         mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+    //         // Perform your logic here
+    //         return RedirectToAction("Index"); // Or wherever you want to redirect
+    //     }
+    //     
+    //     
+    //     var model = new LogRequestAndResponseModel()
+    //     {
+    //         LogRequestModel = new LogRequestDto(),
+    //         //LogResponseModel = _viewModel
+    //     };
+    //     // Process the data
+    //     // Convert the ViewModel to the DTO and save or use it as required
+    //     return View("Index",model);
+    // }
+
     [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Index(LogRequestDto logRequestModel)
+    public async Task<IActionResult> SendLogRequest(LogRequestDto logRequestDto)
     {
-        if (ModelState.IsValid)
+        if (!ModelState.IsValid) return View("Index");
+        var dto = new LogRequestModel
         {
-            var dto = new LogRequestModel
-            {
-                RequestId = Guid.NewGuid(),
-                SourceId = "AdminClient",
-                LogRequestDto = logRequestModel,
-                RequestDate = DateTime.Now
-            };
-            await Subscribe(logRequestModel.TargetId);
-            mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
-            // Perform your logic here
-            return RedirectToAction("Index"); // Or wherever you want to redirect
-        }
-        
-        
-        var model = new LogRequestAndResponseModel()
-        {
-            LogRequestModel = new LogRequestDto(),
-            //LogResponseModel = _viewModel
+            RequestId = Guid.NewGuid(),
+            SourceId = "AdminClient",
+            LogRequestDto = logRequestDto,
+            RequestDate = DateTime.Now
         };
-        // Process the data
-        // Convert the ViewModel to the DTO and save or use it as required
-        return View("Index",model);
+        await Subscribe(logRequestDto.TargetId);
+        mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        // Perform your logic here
+        return RedirectToAction("Index"); // Or wherever you want to redirect
     }
 
     [HttpPost]

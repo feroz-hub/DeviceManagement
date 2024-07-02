@@ -13,7 +13,7 @@
     $(document).ready(function() {
         function fetchMessages() {
             $.ajax({
-                url: '@Url.Action("GetReceivedMessages", "MqttResponse")',
+                url: '@Url.Action("Invoke", "MqttResponse")',
                 type: 'GET',
                 success: function (data) {
                     var logMessages = $('#logMessages ul');
