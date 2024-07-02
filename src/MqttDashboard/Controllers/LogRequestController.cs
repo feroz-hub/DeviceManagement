@@ -6,55 +6,61 @@ using MqttHub.Services;
 
 namespace MqttDashboard.Controllers;
 
-public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : Controller
+public class LogRequestController : Controller
 {
+    private readonly IMqttBus _mqttBus;
+    private readonly IMqttService _mqttService;
+    public LogRequestController(IMqttBus mqttBus,IMqttService mqttService)
+    {
+        _mqttBus = mqttBus;
+        _mqttService = mqttService;
+        _mqttBus.MessageReceived += OnMessageReceived;
+        
+    }
     private readonly LogResponseModel _viewModel = new ();
 
     // GET
     public IActionResult Index()
     {
-        _viewModel.Messages = [..mqttBus.GetMessages()];
-        return View(_viewModel);
+        return View(new LogRequestAndResponseModel());
     }
 
-    private Task OnMessageReceivedAsync(string message, string topic)
+    private Task OnMessageReceived(string message, string topic)
     {
-        return Task.Run(() =>
-        {
-            if((_viewModel.Messages!=null)) 
-                _viewModel.Messages.Add($"Topic: {topic}, Message: {message}");
-        });
+        _viewModel.Messages.Add($"{topic}: {message}");
+        return Task.CompletedTask;
     }
     
-    // [HttpPost]
-    // [ValidateAntiForgeryToken]
-    // public async Task<IActionResult> Index(LogRequestDto logRequestModel)
-    // {
-    //     if (ModelState.IsValid)
-    //     {
-    //         var dto = new LogRequestModel
-    //         {
-    //             RequestId = Guid.NewGuid(),
-    //             SourceId = "AdminClient",
-    //             LogRequestDto = logRequestModel,
-    //             RequestDate = DateTime.Now
-    //         };
-    //         await Subscribe(logRequestModel.TargetId);
-    //         mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
-    //         // Perform your logic here
-    //         return RedirectToAction("Index"); // Or wherever you want to redirect
-    //     }
-    //     
-    //     
-    //     var model = new LogRequestAndResponseModel()
-    //     {
-    //         LogRequestModel = new LogRequestDto(),
-    //         //LogResponseModel = _viewModel
-    //     };
-    //     // Process the data
-    //     // Convert the ViewModel to the DTO and save or use it as required
-    //     return View("Index",model);
-    // }
+    
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Index(LogRequestDto logRequestModel)
+    {
+        if (ModelState.IsValid)
+        {
+            var dto = new LogRequestModel
+            {
+                RequestId = Guid.NewGuid(),
+                SourceId = "AdminClient",
+                LogRequestDto = logRequestModel,
+                RequestDate = DateTime.Now
+            };
+            await Subscribe(logRequestModel.TargetId);
+            _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+            // Perform your logic here
+            return RedirectToAction("Index"); // Or wherever you want to redirect
+        }
+        
+        
+        var model = new LogRequestAndResponseModel()
+        {
+            LogRequestModel = new LogRequestDto(),
+            //LogResponseModel = _viewModel
+        };
+        // Process the data
+        // Convert the ViewModel to the DTO and save or use it as required
+        return View("Index",model);
+    }
 
     [HttpPost]
     public async Task<IActionResult> SendLogRequest(LogRequestDto logRequestDto)
@@ -68,7 +74,7 @@ public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : 
             RequestDate = DateTime.Now
         };
         await Subscribe(logRequestDto.TargetId);
-        mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
         // Perform your logic here
         return RedirectToAction("Index"); // Or wherever you want to redirect
     }
@@ -79,7 +85,7 @@ public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : 
         if (string.IsNullOrEmpty(topic)) return RedirectToAction("Index");
         try
         {
-            await mqttBus.SubscribeToTopic(topic);
+            await _mqttBus.SubscribeToTopic(topic);
         }
         catch (Exception e)
         {
@@ -106,5 +112,10 @@ public class LogRequestController(IMqttService mqttService, IMqttBus mqttBus) : 
     public IActionResult Privacy()
     {
         return View();
+    }
+
+    public IActionResult MessageReceived()
+    {
+        return PartialView("_MqttResponsePartial", _viewModel);
     }
 }

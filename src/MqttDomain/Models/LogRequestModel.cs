@@ -18,8 +18,8 @@ public class LogRequestDto
     public bool IsAckRequired { get; init; } 
     public ActionType ActionType { get; init; }
     public ResponseType ResponseType { get; init; }
-    public DateTime FromDate { get; init; }
-    public DateTime EndDate { get; init; }
+    public DateTime FromDate { get; init; } = DateTime.Now;
+    public DateTime EndDate { get; init; }=DateTime.Now;
 }
 public class LogResponseModel
 {
@@ -28,5 +28,5 @@ public class LogResponseModel
 public class LogRequestAndResponseModel
 {
     public LogRequestDto LogRequestModel { get; set; } = new();
-    //public LogResponseModel LogResponseModel { get; set; } = new();
+    public LogResponseModel LogResponseModel { get; set; } = new();
 }
