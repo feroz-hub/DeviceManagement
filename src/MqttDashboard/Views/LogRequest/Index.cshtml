@@ -3,7 +3,7 @@
 @{
     ViewBag.Title = "Create Log Request";
 }
-<h2>Create Log Request</h2>
+<h2>Log Request</h2>
 
 @using (Html.BeginForm("Index", "LogRequest", FormMethod.Post))
 {
@@ -104,16 +104,33 @@
                 <i class="bi bi-check-circle"></i> Send
             </button>
         </div>
+      
     </div>
 }
-<div id="logResponseContainer"> 
-    @await Html.PartialAsync("_MqttResponsePartial",Model.LogResponseModel)
+<div>
+    <h2>Log Response</h2>
+</div>
+<div class="card-body">
+    
+    @await Html.PartialAsync("_MqttResponsePartial", Model.LogResponseModel)
 </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
+
     $(document).ready(function() {
+    function fetchMessages() {
+        $.get('@Url.Action("MessageReceived", "LogRequest")', function(data) {
+            $('#mqttResponse').html(data);
+        });
+    }
+        $(document).ajaxComplete(function (event, xhr, settings) {
+            if (xhr.getResponseHeader("X-Trigger-Partial-View")) {
+                fetchMessages();
+            }
+        });
+       
         $('input[name="selectedClients"]').change(function() {
             if ($(this).is(':checked')) {
                 var deviceName = $(this).val(); // Get the device name
@@ -121,6 +138,8 @@
             }
         });
     });
+
+
 </script>
 
 @* @model LogResponseModel *@

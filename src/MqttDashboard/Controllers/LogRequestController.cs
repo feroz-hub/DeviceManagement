@@ -9,6 +9,7 @@ namespace MqttDashboard.Controllers;
 public class LogRequestController : Controller
 {
     private readonly IMqttBus _mqttBus;
+    private static readonly object _lock = new object();
     private readonly IMqttService _mqttService;
     public LogRequestController(IMqttBus mqttBus,IMqttService mqttService)
     {
@@ -22,15 +23,31 @@ public class LogRequestController : Controller
     // GET
     public IActionResult Index()
     {
+        // var model = new LogRequestAndResponseModel
+        // {
+        //     LogRequestModel = new LogRequestDto(),
+        //     LogResponseModel = _viewModel
+        // };
+        // return View(model);
         return View(new LogRequestAndResponseModel());
     }
 
-    private Task OnMessageReceived(string message, string topic)
+    private async Task OnMessageReceived(string message, string topic)
     {
-        _viewModel.Messages.Add($"{topic}: {message}");
-        return Task.CompletedTask;
+         lock (_lock)
+         {
+            _viewModel.Messages.Add($"{topic}: {message}");
+            //MessageReceived(_viewModel);
+            Response.Headers.Append("X-Trigger-Partial-View", "true");
+        }
+        // Trigger AJAX call to update the partial view
+        // await Task.Run(() => 
+        // {
+        //     Response.Headers.Add("X-Trigger-Partial-View", "true");
+        //     // var context = HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+        //     // context?.HttpContext?.Response?.Headers?.Add("X-Trigger-Partial-View", "true");
+        // });
     }
-    
     
     [HttpPost]
     [ValidateAntiForgeryToken]
@@ -47,19 +64,31 @@ public class LogRequestController : Controller
             };
             await Subscribe(logRequestModel.TargetId);
             _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+            var model = new LogRequestAndResponseModel
+            {
+                LogRequestModel = logRequestModel,
+                LogResponseModel = _viewModel
+            };
+            return View("Index", model);
             // Perform your logic here
-            return RedirectToAction("Index"); // Or wherever you want to redirect
+            //return RedirectToAction("Index"); // Or wherever you want to redirect
         }
         
-        
-        var model = new LogRequestAndResponseModel()
+        //
+        // var model = new LogRequestAndResponseModel()
+        // {
+        //     LogRequestModel = new LogRequestDto(),
+        //     LogResponseModel = _viewModel
+        // };
+        // // Process the data
+        // // Convert the ViewModel to the DTO and save or use it as required
+        // return PartialView("_MqttResponsePartial", model.LogResponseModel);
+        var invalidModel = new LogRequestAndResponseModel
         {
-            LogRequestModel = new LogRequestDto(),
-            //LogResponseModel = _viewModel
+            LogRequestModel = logRequestModel,
+            LogResponseModel = _viewModel
         };
-        // Process the data
-        // Convert the ViewModel to the DTO and save or use it as required
-        return View("Index",model);
+        return View("Index", invalidModel);
     }
 
     [HttpPost]
@@ -73,7 +102,7 @@ public class LogRequestController : Controller
             LogRequestDto = logRequestDto,
             RequestDate = DateTime.Now
         };
-        await Subscribe(logRequestDto.TargetId);
+        //await Subscribe(logRequestDto.TargetId);
         _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
         // Perform your logic here
         return RedirectToAction("Index"); // Or wherever you want to redirect
@@ -116,6 +145,9 @@ public class LogRequestController : Controller
 
     public IActionResult MessageReceived()
     {
-        return PartialView("_MqttResponsePartial", _viewModel);
+        lock (_lock)
+        {
+            return PartialView("_MqttResponsePartial", _viewModel);
+        }
     }
 }

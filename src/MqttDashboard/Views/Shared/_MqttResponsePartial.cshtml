@@ -36,31 +36,53 @@
 @*     }); *@
 @* </script> *@
 
+@* @model LogResponseModel *@
+@* *@
+@* @if (Model != null && Model.Messages != null && Model.Messages.Count > 0)  *@
+@*      { *@
+@*          <ul> *@
+@*              @foreach (var message in Model.Messages) *@
+@*              { *@
+@*                  <li>@message</li> *@
+@*              } *@
+@*          </ul> *@
+@*      } *@
+@*      else *@
+@*      { *@
+@*          <p>No responses yet.</p> *@
+@*      } *@
+@*      @section Scripts { *@
+@*          <script> *@
+@*         setInterval(function() { *@
+@*             $.ajax({ *@
+@*                 url: '@Url.Action("MessageReceived", "LogRequest")', *@
+@*                 type: 'GET', *@
+@*                 success: function (data) { *@
+@*                     $('#logResponseContainer').html(data); *@
+@*                 } *@
+@*             }); *@
+@*         }, 5000); // Fetch updates every 5 seconds *@
+@* </script> *@
+@*      } *@
 @model LogResponseModel
 
-@if (Model != null && Model.Messages != null && Model.Messages.Count > 0) 
-     {
-         <ul>
-             @foreach (var message in Model.Messages)
-             {
-                 <li>@message</li>
-             }
-         </ul>
-     }
-     else
-     {
-         <p>No responses yet.</p>
-     }
-     @section Scripts {
-         <script>
-        setInterval(function() {
-            $.ajax({
-                url: '@Url.Action("MessageReceived", "LogRequest")',
-                type: 'GET',
-                success: function (data) {
-                    $('#logResponseContainer').html(data);
-                }
-            });
-        }, 5000); // Fetch updates every 5 seconds
-</script>
-     }
+<div id="mqttResponse">
+    <!-- Display messages -->
+    <ul>
+        @foreach (var message in Model.Messages)
+        {
+            <li>@message</li>
+        }
+    </ul>
+
+    @* <!-- Input field and Subscribe button --> *@
+    @* <div class="form-group"> *@
+    @*     <label for="topicInput">Enter Topic:</label> *@
+    @*     <input type="text" id="topicInput" class="form-control" /> *@
+    @* </div> *@
+    @* <button id="subscribeButton" class="btn btn-primary">Subscribe</button> *@
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+

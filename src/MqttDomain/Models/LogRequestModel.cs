@@ -5,8 +5,7 @@ namespace MqttDomain.Models;
 public class LogRequestModel
 {
     public Guid RequestId { get; init; }=Guid.NewGuid();
-    public string SourceId { get; init; } = default!;
-  
+    public string SourceId { get; init; } = "Admin";
     public DateTime RequestDate { get; init; }=DateTime.Now;
     public LogRequestDto LogRequestDto { get; init; } = default!;
 }
@@ -27,6 +26,6 @@ public class LogResponseModel
 }
 public class LogRequestAndResponseModel
 {
-    public LogRequestDto LogRequestModel { get; set; } = new();
-    public LogResponseModel LogResponseModel { get; set; } = new();
+    public LogRequestDto LogRequestModel { get; init; } = new();
+    public LogResponseModel LogResponseModel { get; init; } = new();
 }
