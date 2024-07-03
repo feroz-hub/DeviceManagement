@@ -34,18 +34,16 @@ public class LogRequestController : Controller
 
     private async Task OnMessageReceived(string message, string topic)
     {
-         lock (_lock)
-         {
+        lock (_lock)
+        {
             _viewModel.Messages.Add($"{topic}: {message}");
-            //MessageReceived(_viewModel);
-            Response.Headers.Append("X-Trigger-Partial-View", "true");
         }
-        // Trigger AJAX call to update the partial view
+ Response.Headers.Add("X-Trigger-Partial-View", "true");
+        // // Trigger AJAX call to update the partial view
         // await Task.Run(() => 
         // {
-        //     Response.Headers.Add("X-Trigger-Partial-View", "true");
-        //     // var context = HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
-        //     // context?.HttpContext?.Response?.Headers?.Add("X-Trigger-Partial-View", "true");
+        //     var context = HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
+        //     context?.HttpContext?.Response?.Headers?.Add("X-Trigger-Partial-View", "true");
         // });
     }
     
@@ -62,7 +60,7 @@ public class LogRequestController : Controller
                 LogRequestDto = logRequestModel,
                 RequestDate = DateTime.Now
             };
-            await Subscribe(logRequestModel.TargetId);
+            //await Subscribe(logRequestModel.TargetId);
             _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
             var model = new LogRequestAndResponseModel
             {
@@ -102,8 +100,8 @@ public class LogRequestController : Controller
             LogRequestDto = logRequestDto,
             RequestDate = DateTime.Now
         };
-        //await Subscribe(logRequestDto.TargetId);
         _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        await Subscribe(logRequestDto.TargetId);
         // Perform your logic here
         return RedirectToAction("Index"); // Or wherever you want to redirect
     }

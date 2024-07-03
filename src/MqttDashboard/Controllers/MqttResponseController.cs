@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using MqttDashboard.Services;
+using MqttDomain.Models;
 using MqttHub.Bus;
 
 namespace MqttDashboard.Controllers;
@@ -7,7 +8,7 @@ namespace MqttDashboard.Controllers;
 public class MqttResponseController : Controller
 {
     private readonly IMqttBus _mqttBus;
-    private static List<string> _messages = [];
+    private readonly LogResponseModel _viewModel = new ();
 
     public MqttResponseController(IMqttBus mqttBus)
     {
@@ -19,12 +20,12 @@ public class MqttResponseController : Controller
     {
         //await _mqttBus.SubscribeToTopic("Test");
 
-        return View(_messages);
+        return PartialView("_MqttResponsePartial", _viewModel);
     }
     
     private async Task OnMessageReceived(string message, string topic)
     {
-        _messages.Add($"{topic}: {message}");
+        _viewModel.Messages.Add($"{topic}: {message}");
         await Task.CompletedTask;
     }
     [HttpPost]

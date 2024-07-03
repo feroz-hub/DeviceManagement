@@ -1,37 +1,56 @@
-@model IEnumerable<string>
-<div class="card-body">
-    <h3>Log Messages</h3>
+@* @model IEnumerable<string> *@
+@* <div class="card-body"> *@
+@*     <h3>Log Messages</h3> *@
+@*     <ul> *@
+@*         @foreach (var message in Model) *@
+@*         { *@
+@*         <li>@message</li> *@
+@*         } *@
+@*     </ul> *@
+@* </div> *@
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
+@* <script> *@
+@*     $(document).ready(function() { *@
+@*         function fetchMessages() { *@
+@*             $.ajax({ *@
+@*                 url: '@Url.Action("Invoke", "MqttResponse")', *@
+@*                 type: 'GET', *@
+@*                 success: function (data) { *@
+@*                     var logMessages = $('#logMessages ul'); *@
+@*                     logMessages.empty(); *@
+@*                     data.forEach(function (message) { *@
+@*                         logMessages.append('<li>' + message + '</li>'); *@
+@*                     }); *@
+@*                 }, *@
+@*                 error: function () { *@
+@*                     console.error('Failed to fetch messages.'); *@
+@*                 } *@
+@*             }); *@
+@*         } *@
+@* *@
+@*         // Fetch messages every 5 seconds *@
+@*         setInterval(fetchMessages, 5000); *@
+@* *@
+@*         // Initial fetch *@
+@*         fetchMessages(); *@
+@*     }); *@
+@* </script> *@
+
+@model LogResponseModel
+
+<div id="mqttResponse">
+    <!-- Display messages -->
     <ul>
-        @foreach (var message in Model)
+        @foreach (var message in Model.Messages)
         {
-        <li>@message</li>
+            <li>@message</li>
         }
     </ul>
+
+    @* <!-- Input field and Subscribe button --> *@
+    @* <div class="form-group"> *@
+    @*     <label for="topicInput">Enter Topic:</label> *@
+    @*     <input type="text" id="topicInput" class="form-control" /> *@
+    @* </div> *@
+    @* <button id="subscribeButton" class="btn btn-primary">Subscribe</button> *@
 </div>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script>
-    $(document).ready(function() {
-        function fetchMessages() {
-            $.ajax({
-                url: '@Url.Action("Invoke", "MqttResponse")',
-                type: 'GET',
-                success: function (data) {
-                    var logMessages = $('#logMessages ul');
-                    logMessages.empty();
-                    data.forEach(function (message) {
-                        logMessages.append('<li>' + message + '</li>');
-                    });
-                },
-                error: function () {
-                    console.error('Failed to fetch messages.');
-                }
-            });
-        }
-
-        // Fetch messages every 5 seconds
-        setInterval(fetchMessages, 5000);
-
-        // Initial fetch
-        fetchMessages();
-    });
-</script>

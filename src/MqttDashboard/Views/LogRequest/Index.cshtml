@@ -104,14 +104,14 @@
                 <i class="bi bi-check-circle"></i> Send
             </button>
         </div>
-      
+
     </div>
 }
 <div>
     <h2>Log Response</h2>
 </div>
-<div class="card-body">
-    
+<div class="card-body" id="mqttResponse">
+    @* @await Component.InvokeAsync("MqttResponse") *@
     @await Html.PartialAsync("_MqttResponsePartial", Model.LogResponseModel)
 </div>
 
@@ -130,7 +130,7 @@
                 fetchMessages();
             }
         });
-       
+
         $('input[name="selectedClients"]').change(function() {
             if ($(this).is(':checked')) {
                 var deviceName = $(this).val(); // Get the device name
@@ -141,6 +141,8 @@
 
 
 </script>
+
+
 
 @* @model LogResponseModel *@
 @* *@
@@ -248,5 +250,35 @@
 @*                 $('#TargetId').val(deviceName); // Update the TargetId input field *@
 @*             } *@
 @*         }); *@
+@*     }); *@
+@* </script> *@
+
+@* @model LogRequestAndResponseModel *@
+@* *@
+@* @{ *@
+@*     ViewBag.Title = "Create Log Request"; *@
+@* } *@
+@* <div> *@
+@*     <h2>Log Request</h2> *@
+@*     <div id="logRequestContainer"> *@
+@*         @await Html.PartialAsync("_logRequestPartial",Model.LogRequestModel) *@
+@*     </div> *@
+@*     <div> *@
+@*         <h2>Log Response</h2> *@
+@*     </div> *@
+@*     <div class="card-body" id="mqttResponseContainer"> *@
+@*         @await Html.PartialAsync("_MqttResponsePartial", Model.LogResponseModel) *@
+@*     </div> *@
+@* </div> *@
+@* <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> *@
+@* *@
+@* <script> *@
+@*     $(document).ready(function() { *@
+@*         function loadMqttResponse() { *@
+@*             $('#mqttResponseContainer').load('@Url.Action("Index","MqttResponse") *@
+@*         } *@
+@* *@
+@*         // Set an interval to load the Mqtt response partial view every 5 seconds *@
+@*         setInterval(loadMqttResponse, 5000); *@
 @*     }); *@
 @* </script> *@
