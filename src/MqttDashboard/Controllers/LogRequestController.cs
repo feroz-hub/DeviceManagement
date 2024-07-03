@@ -6,87 +6,44 @@ using MqttHub.Services;
 
 namespace MqttDashboard.Controllers;
 
-public class LogRequestController : Controller
+public class LogRequestController(IMqttBus mqttBus, IMqttService mqttService,MessageService messageService) : Controller
 {
-    private readonly IMqttBus _mqttBus;
-    private static readonly object _lock = new object();
-    private readonly IMqttService _mqttService;
-    public LogRequestController(IMqttBus mqttBus,IMqttService mqttService)
-    {
-        _mqttBus = mqttBus;
-        _mqttService = mqttService;
-        _mqttBus.MessageReceived += OnMessageReceived;
-        
-    }
-    private readonly LogResponseModel _viewModel = new ();
-
-    // GET
+    
     public IActionResult Index()
     {
-        // var model = new LogRequestAndResponseModel
-        // {
-        //     LogRequestModel = new LogRequestDto(),
-        //     LogResponseModel = _viewModel
-        // };
-        // return View(model);
-        return View(new LogRequestAndResponseModel());
+        //_mqttBus.MessageReceived += OnMessageReceived;
+        var viewModel = new LogRequestAndResponseModel
+        {
+            LogResponseModel = new LogResponseModel
+            {
+                Messages = mqttBus.GetMessages().ToList()
+            }
+        };
+        return View(viewModel);
+        
     }
 
-    private async Task OnMessageReceived(string message, string topic)
+    private  Task OnMessageReceived(string message, string topic)
     {
-        lock (_lock)
-        {
-            _viewModel.Messages.Add($"{topic}: {message}");
-        }
- Response.Headers.Add("X-Trigger-Partial-View", "true");
-        // // Trigger AJAX call to update the partial view
-        // await Task.Run(() => 
-        // {
-        //     var context = HttpContext.RequestServices.GetService(typeof(IHttpContextAccessor)) as IHttpContextAccessor;
-        //     context?.HttpContext?.Response?.Headers?.Add("X-Trigger-Partial-View", "true");
-        // });
+        messageService.Messages.Add($"{topic}: {message}");
+        return Task.CompletedTask;
     }
     
     [HttpPost]
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Index(LogRequestDto logRequestModel)
     {
-        if (ModelState.IsValid)
+        if (ModelState.IsValid) return RedirectToAction("Index"); // Or wherever you want to redirect
+        var dto = new LogRequestModel
         {
-            var dto = new LogRequestModel
-            {
-                RequestId = Guid.NewGuid(),
-                SourceId = "AdminClient",
-                LogRequestDto = logRequestModel,
-                RequestDate = DateTime.Now
-            };
-            //await Subscribe(logRequestModel.TargetId);
-            _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
-            var model = new LogRequestAndResponseModel
-            {
-                LogRequestModel = logRequestModel,
-                LogResponseModel = _viewModel
-            };
-            return View("Index", model);
-            // Perform your logic here
-            //return RedirectToAction("Index"); // Or wherever you want to redirect
-        }
-        
-        //
-        // var model = new LogRequestAndResponseModel()
-        // {
-        //     LogRequestModel = new LogRequestDto(),
-        //     LogResponseModel = _viewModel
-        // };
-        // // Process the data
-        // // Convert the ViewModel to the DTO and save or use it as required
-        // return PartialView("_MqttResponsePartial", model.LogResponseModel);
-        var invalidModel = new LogRequestAndResponseModel
-        {
-            LogRequestModel = logRequestModel,
-            LogResponseModel = _viewModel
+            RequestId = Guid.NewGuid(),
+            SourceId = "AdminClient",
+            LogRequestDto = logRequestModel,
+            RequestDate = DateTime.Now
         };
-        return View("Index", invalidModel);
+        //await Subscribe(logRequestModel.TargetId);
+        mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        return RedirectToAction("Index"); // Or wherever you want to redirect
     }
 
     [HttpPost]
@@ -100,7 +57,7 @@ public class LogRequestController : Controller
             LogRequestDto = logRequestDto,
             RequestDate = DateTime.Now
         };
-        _mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
+        mqttService.LogRequestPublishAsync(dto).GetAwaiter().GetResult();
         await Subscribe(logRequestDto.TargetId);
         // Perform your logic here
         return RedirectToAction("Index"); // Or wherever you want to redirect
@@ -112,7 +69,7 @@ public class LogRequestController : Controller
         if (string.IsNullOrEmpty(topic)) return RedirectToAction("Index");
         try
         {
-            await _mqttBus.SubscribeToTopic(topic);
+            await mqttBus.SubscribeToTopic(topic);
         }
         catch (Exception e)
         {
@@ -122,30 +79,28 @@ public class LogRequestController : Controller
         return RedirectToAction("Index");
     }
 
-    // [HttpGet]
-    // public IActionResult GetMessages()
-    // {
-    //     mqttBus.MessageReceived += async (message, topic) =>
-    //     {
-    //         await OnMessageReceivedAsync(message, topic);
-    //     };
-    //     var model = new LogRequestAndResponseModel()
-    //     {
-    //         LogRequestModel = new LogRequestDto(),
-    //         //LogResponseModel = _viewModel
-    //     };
-    //     return PartialView("_MqttResponsePartial", model);
-    // }
+    public IActionResult GetMessagesPartial()
+    {
+        // _mqttService.MessageReceived += OnMessageReceived;
+
+      
+        var logResponseModel = new LogResponseModel
+        {
+            Messages = mqttBus.GetMessages().ToList()
+            //Messages=messageService.Messages
+        };
+        return PartialView("_MqttResponsePartial", logResponseModel);
+    }
     public IActionResult Privacy()
     {
         return View();
     }
 
-    public IActionResult MessageReceived()
-    {
-        lock (_lock)
-        {
-            return PartialView("_MqttResponsePartial", _viewModel);
-        }
-    }
+    // public IActionResult MessageReceived()
+    // {
+    //     lock (_lock)
+    //     {
+    //         return PartialView("_MqttResponsePartial", _viewModel);
+    //     }
+    // }
 }

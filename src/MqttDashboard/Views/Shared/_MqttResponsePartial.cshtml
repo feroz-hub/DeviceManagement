@@ -66,23 +66,13 @@
 @*      } *@
 @model LogResponseModel
 
-<div id="mqttResponse">
-    <!-- Display messages -->
-    <ul>
+<div>
+    <h2>Log Response</h2>
+    <ul id="log-messages">
         @foreach (var message in Model.Messages)
         {
             <li>@message</li>
         }
     </ul>
-
-    @* <!-- Input field and Subscribe button --> *@
-    @* <div class="form-group"> *@
-    @*     <label for="topicInput">Enter Topic:</label> *@
-    @*     <input type="text" id="topicInput" class="form-control" /> *@
-    @* </div> *@
-    @* <button id="subscribeButton" class="btn btn-primary">Subscribe</button> *@
 </div>
-
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
 

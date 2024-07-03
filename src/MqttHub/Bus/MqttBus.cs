@@ -139,33 +139,34 @@ public class MqttBus : IMqttBus
         private readonly IManagedMqttClient _managedMqttClient;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ConcurrentBag<string> _messages = [];
-        private readonly ConcurrentBag<string> _subscribedTopics = [];
         private readonly MqttFactory _mqttFactory = new();
         private readonly MqttClientOptions _options;
         public MqttBus(ISender mediator, IMqttClient mqttClient, IServiceScopeFactory scopeFactory, IManagedMqttClient managedMqttClient)
         {
             _mediator = mediator;
+            _messages = new ConcurrentBag<string>();
             _mqttClient = mqttClient;
             _scopeFactory = scopeFactory;
             _managedMqttClient = managedMqttClient;
+            
             _options = new MqttClientOptionsBuilder()
                 .WithTcpServer("localhost", 1883)
                 .WithClientId("AdminSubscribeClient")
                 .WithWillQualityOfServiceLevel(MqttQualityOfServiceLevel.AtLeastOnce)
                 .WithKeepAlivePeriod(TimeSpan.FromMinutes(60))
-                // .WithCleanSession()
+                .WithCleanSession()
                 .Build();
+            
             _mqttClient.ApplicationMessageReceivedAsync += async e =>
             {
                 var message = e.ApplicationMessage.ConvertPayloadToString();
                 _messages.Add(message);
-                if (MessageReceived != null)
-                    await MessageReceived(message, e.ApplicationMessage.Topic);
+                // if (MessageReceived != null)
+                //     await MessageReceived(message, e.ApplicationMessage.Topic);
                 await Task.CompletedTask;
             };
             
             _mqttClient.ConnectAsync(_options, CancellationToken.None);
-        
             _mqttClient.DisconnectedAsync += async e =>
             {
                 await Task.Delay(TimeSpan.FromSeconds(5)); // Wait before reconnecting
@@ -213,7 +214,6 @@ public class MqttBus : IMqttBus
             {
                 await ConnectClient(); // Connect if not connected
             }
-
             if (IsConnected)
             {
                 await _mqttClient.PublishAsync(new MqttApplicationMessage()
@@ -259,7 +259,6 @@ public class MqttBus : IMqttBus
             if (IsConnected)
             {
                 await _mqttClient.SubscribeAsync(topic);
-                _subscribedTopics.Add(topic);
             }
             else
             {
@@ -274,8 +273,13 @@ public class MqttBus : IMqttBus
 
         public IEnumerable<string> GetSubscribedTopics()
         {
-            return _subscribedTopics.Distinct();
+            throw new NotImplementedException();
         }
+
+        // public IEnumerable<string> GetSubscribedTopics()
+        // {
+        //     return _subscribedTopics.Distinct();
+        // }
 
         public event Func<string, string, Task>? MessageReceived;
 
@@ -339,12 +343,12 @@ public class MqttBus : IMqttBus
             return result;
         }
 
-        private async Task SubscribeToTopics(List<string> topics)
-        {
-            foreach (var topic in topics)
-            {
-                await _managedMqttClient.SubscribeAsync(topic);
-                _subscribedTopics.Add(topic);
-            }
-        }
+        // private async Task SubscribeToTopics(List<string> topics)
+        // {
+        //     foreach (var topic in topics)
+        //     {
+        //         await _managedMqttClient.SubscribeAsync(topic);
+        //         _subscribedTopics.Add(topic);
+        //     }
+        // }
     }

@@ -30,7 +30,7 @@ public static class MqttServiceExtension
             return factory.CreateMqttClient();
         });
         services.AddMediatR(Assembly.GetExecutingAssembly());
-        services.AddScoped<IMqttService, MqttService>();
+        services.AddSingleton<IMqttService, MqttService>();
         services.AddScoped<IMqttBus, MqttBus>();
         return services;
 

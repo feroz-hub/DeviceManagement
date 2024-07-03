@@ -110,26 +110,41 @@
 <div>
     <h2>Log Response</h2>
 </div>
-<div class="card-body" id="mqttResponse">
-    @* @await Component.InvokeAsync("MqttResponse") *@
-    @await Html.PartialAsync("_MqttResponsePartial", Model.LogResponseModel)
-</div>
+<div>
+        <h2>Subscribe to Topic</h2>
+        <form asp-action="Subscribe" method="post" class="row">
+            <div class="p-3">
+                <div class="form-floating py-1 col-12">
+                    <input name="topic" class="form-control border shadow" placeholder="Enter topic to subscribe" />
+                    <label for="topic" class="ms-2">Topic</label>
+                </div>
+                <div class="row pt-2">
+                    <div class="col-6 col-md-3">
+                        <button type="submit" class="btn btn-primary w-100">
+                            <i class="bi bi-check-circle"></i> Subscribe
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="log-response-container">
+        @await Html.PartialAsync("_MqttResponsePartial",Model.LogResponseModel)
+    </div>
 
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 <script>
 
     $(document).ready(function() {
-    function fetchMessages() {
-        $.get('@Url.Action("MessageReceived", "LogRequest")', function(data) {
-            $('#mqttResponse').html(data);
-        });
-    }
-        $(document).ajaxComplete(function (event, xhr, settings) {
-            if (xhr.getResponseHeader("X-Trigger-Partial-View")) {
-                fetchMessages();
-            }
-        });
+    
+      function fetchMessages() {
+                     $.get('@Url.Action("GetMessagesPartial", "LogRequest")', function (data) {
+                         $('#log-response-container').html(data);
+                     });
+                 }
+      
+                 setInterval(fetchMessages, 5000);
 
         $('input[name="selectedClients"]').change(function() {
             if ($(this).is(':checked')) {
@@ -137,9 +152,8 @@
                 $('#TargetId').val(deviceName); // Update the TargetId input field
             }
         });
+        
     });
-
-
 </script>
 
 

@@ -1,5 +1,6 @@
 using Mapster;
 using Microsoft.EntityFrameworkCore;
+using MqttDashboard;
 using MqttDashboard.Data;
 using MqttDashboard.Infrastructure;
 using MqttDashboard.Models;
@@ -15,6 +16,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddScoped<IMessageReceiverService, MessageReceiverService>();
 builder.Services.AddScoped<IMqttClientRepository, MqttClientRepository>();
 builder.Services.AddMqttService(typeof(Program).Assembly);
+builder.Services.AddSingleton<MessageService>();
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
